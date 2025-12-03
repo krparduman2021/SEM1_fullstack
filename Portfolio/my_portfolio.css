@@ -1,11 +1,11 @@
 @media (max-width: 700px) {
-        .hero-content .right {
-            order: -1;
-            margin-bottom: 18px;
-        }
-        .hero-content .left {
-            order: 1;
-        }
+    .hero-content .right {
+        order: -1;
+        margin-bottom: 18px;
+    }
+    .hero-content .left {
+        order: 1;
+    }
     .logo {
         font-size: 18px;
         font-weight: 700;
@@ -27,7 +27,7 @@
     }
     .hero {
         padding-top: 0;
-        min-height: 100vh;
+        min-height: auto;
     }
 }
 @media (max-width: 1100px) {
@@ -145,12 +145,14 @@
 /* --- Modern Card Sections --- */
 .section-card {
     width: 100%;
-    min-height: 100vh;
+    min-height: auto; /* remove full-viewport height so sections don't create large gaps */
     display: flex;
     justify-content: center;
     align-items: center;
     background: #f7f8fa;
-    padding: 80px 0 40px 0;
+    padding: 10px 0; /* spacing between sections set to 10px */
+    /* ensure anchor scrolling and header offset behave across viewports */
+    scroll-margin-top: 88px;
     position: relative;
     z-index: 1;
 }
@@ -158,15 +160,16 @@
 .card {
     background: #fff;
     border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    padding: 40px 32px;
-    max-width: 600px;
-    width: 90vw;
-    margin: 0 auto;
+    /* stronger, softer shadow like the example */
+    box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+    padding: 36px 40px;
+    max-width: 1100px; /* wider card */
+    width: calc(100% - 40px);
+    margin: 0 auto 10px auto; /* gap between cards set to 10px */
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    animation: fadeIn 0.5s;
+    gap: 20px;
+    animation: fadeIn 0.45s;
 }
 
 @keyframes fadeIn {
@@ -177,16 +180,35 @@
 .card h2 {
     font-size: 2rem;
     color: #2516d6;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+}
+
+.card h3 {
+    margin: 0 0 8px 0;
 }
 
 .skills-list {
     list-style: none;
     padding-left: 0;
     margin-bottom: 0;
+    display: grid;
+    /* responsive grid: auto-fit columns with a sensible min width */
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px 18px;
+    align-items: start;
+}
+
+.skills-list li {
+    /* pill-like skill items that fill their grid cell */
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 18px;
+    background: rgba(0,0,0,0.03);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    font-size: 0.95rem;
+    text-align: center;
 }
 
 .education-timeline {
@@ -215,8 +237,8 @@
 .project-card {
     background: #f0f3ff;
     border-left: 4px solid #ff8400;
-    padding: 16px 20px;
-    border-radius: 8px;
+    padding: 18px 22px;
+    border-radius: 10px;
 }
 .project-date {
     font-size: 0.95em;
@@ -238,11 +260,11 @@
 
 @media (max-width: 700px) {
     .card {
-        padding: 24px 8px;
+        padding: 18px 12px;
         max-width: 98vw;
     }
     .section-card {
-        padding: 70px 0 20px 0;
+        padding: 10px 0; /* keep small spacing on mobile too */
     }
     .hero-content {
         flex-direction: column;
@@ -393,8 +415,9 @@ nav a:hover::after {
 
 /* AVATAR SECTION */
 .right .avatar-circle {
-    width: 330px;
-    height: 330px;
+    /* fluid avatar sizing: grows/shrinks with viewport but clamps to sane limits */
+    width: clamp(120px, 28vw, 330px);
+    height: clamp(120px, 28vw, 330px);
     border-radius: 50%;
     background: #ffcb42;
     display: flex;
@@ -407,6 +430,27 @@ nav a:hover::after {
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
+    display: block;
+}
+
+/* Prevent content overflow on small screens: allow flex children to shrink and wrap text */
+.hero-content .left,
+.hero-content .right,
+.card,
+.about-me-card,
+.project-card,
+.edu-item {
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Ensure images and other media don't overflow their containers */
+.card img,
+.about-me-card img,
+.project-card img {
+    max-width: 100%;
+    height: auto;
     display: block;
 }
 

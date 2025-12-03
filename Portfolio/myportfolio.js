@@ -1,35 +1,36 @@
 
-// Section toggling logic for navigation
+// Smooth scrolling and active link highlighting (single-page layout)
 document.addEventListener('DOMContentLoaded', function () {
-	const navLinks = document.querySelectorAll('nav a');
-	const sections = {
-		home: document.getElementById('home'),
-		about: document.getElementById('about'),
-		skills: document.getElementById('skills'),
-		education: document.getElementById('education'),
-		experience: document.getElementById('experience'),
-		contact: document.getElementById('contact')
-	};
+	const navLinks = Array.from(document.querySelectorAll('nav a'));
+	const sectionIds = navLinks.map(a => a.dataset.target).filter(Boolean);
+	const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
 
-	function showSection(sectionId) {
-		Object.keys(sections).forEach(id => {
-			if (sections[id]) {
-				sections[id].style.display = (id === sectionId) ? (id === 'home' ? 'flex' : 'block') : 'none';
-			}
-		});
-	}
-
+	// Clicking nav items should not navigate — sections are all on one page.
 	navLinks.forEach(link => {
 		link.addEventListener('click', function (e) {
+			// prevent any default behavior and just toggle active class locally
+			e.preventDefault();
 			navLinks.forEach(l => l.classList.remove('active'));
 			this.classList.add('active');
-			const sectionId = this.getAttribute('href').replace('#', '');
-			showSection(sectionId);
-			e.preventDefault();
+			// do not scroll or hide sections — user can scroll naturally
 		});
 	});
 
-	// Show home by default
-	showSection('home');
+	// Update active link on scroll so nav reflects the section currently in view
+	function onScroll() {
+		const fromTop = window.scrollY + 80; // small offset for fixed header
+		let currentId = sectionIds[0];
+		for (let i = 0; i < sections.length; i++) {
+			const sec = sections[i];
+			if (!sec) continue;
+			if (sec.offsetTop <= fromTop) currentId = sec.id;
+		}
+		navLinks.forEach(l => l.classList.remove('active'));
+		const activeLink = navLinks.find(l => l.dataset.target === currentId);
+		if (activeLink) activeLink.classList.add('active');
+	}
+
+	window.addEventListener('scroll', onScroll, { passive: true });
+	onScroll();
 });
 
