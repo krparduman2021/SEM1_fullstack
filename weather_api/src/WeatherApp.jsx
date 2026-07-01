@@ -1,29 +1,50 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./WeatherApp.css";
 
 const WeatherApp = () => {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
 
-  const API_KEY = "af9f63c59a649f27d602b96a43d0bd14";
-
   const getWeather = async () => {
     try {
-      const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+      // First, get coordinates from city name using geocoding API
+      const geoRes = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=en&format=json`
       );
 
-      const data = await res.json();
-      console.log(data);
+      const geoData = await geoRes.json();
+      console.log(geoData);
 
-      if (data.cod === 200) {
-        setWeather(data);
-      } else {
+      if (!geoData.results || geoData.results.length === 0) {
         setWeather(null);
         alert("City not found");
+        return;
       }
+
+      const { latitude, longitude, name } = geoData.results[0];
+
+      // Get weather data using coordinates
+      const weatherRes = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto`
+      );
+
+      const weatherData = await weatherRes.json();
+      console.log(weatherData);
+
+      // Transform data to match original structure
+      setWeather({
+        name: name,
+        main: {
+          temp: weatherData.current.temperature_2m,
+          humidity: weatherData.current.relative_humidity_2m,
+        },
+        wind: {
+          speed: weatherData.current.wind_speed_10m,
+        },
+      });
     } catch (error) {
       console.error("Error fetching weather:", error);
+      alert("Error fetching weather data");
     }
   };
 
